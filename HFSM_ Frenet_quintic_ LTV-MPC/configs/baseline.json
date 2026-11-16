@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "id": "BASE",
+  "family": "BASE",
+  "title": "Baseline: highway multi-disturbance (18 s)",
+  "category": "BASELINE",
+  "requirements": ["PP-SWR-001"],
+  "seed": 7,
+  "duration_s": 18.0,
+  "simulation_dt_s": 0.005,
+  "planner_dt_s": 0.025,
+  "lane_model_dt_s": 0.10,
+  "lane_capture_to_send_s": 0.03,
+  "state_estimator_dt_s": 0.01,
+  "path_point_dt_s": 0.1,
+  "path_horizon_s": 3.0,
+  "ego": {
+    "speed_mps": 20.0,
+    "desired_speed_mps": 20.0,
+    "initial": {"x_m": 0.0, "y_m": 0.0, "yaw_rad": 0.0, "v_lat_mps": 0.0}
+  },
+  "vehicle": {
+    "speed_mps": 20.0,
+    "length_m": 4.5,
+    "wheelbase_m": 2.9,
+    "rear_axle_to_cg_m": 1.6,
+    "width_m": 1.9,
+    "mass_kg": 1435.0,
+    "yaw_inertia_kgm2": 3200.0,
+    "cornering_stiffness_front_nprad": 80000.0,
+    "cornering_stiffness_rear_nprad": 78000.0,
+    "air_density_kgpm3": 1.225,
+    "side_area_m2": 4.2,
+    "crosswind_coefficient": 0.8,
+    "aero_center_to_cg_m": 0.35,
+    "road_friction_coefficient": 0.9,
+    "steering_ratio": 15.0,
+    "max_wheel_angle_rad": 0.61,
+    "max_steering_wheel_rate_radps": 6.0,
+    "wheel_radius_m": 0.34,
+    "actuator_delay_s": 0.05
+  },
+  "road": {
+    "lane_width_m": 3.5,
+    "slope_percent": 0.0,
+    "centerline": [
+      {"s_m": 0.0, "type": "straight", "length_m": 80.0},
+      {"type": "cosine", "length_m": 160.0, "amplitude_m": -2.0},
+      {"type": "straight", "length_m": 800.0}
+    ],
+    "width_profile": [{"s_m": 0.0, "width_m": 3.5}],
+    "markings": [
+      {"s_start_m": 0.0, "s_end_m": 100000.0, "left": "DASHED", "right": "DASHED",
+       "left_confidence": 1.0, "right_confidence": 1.0,
+       "left_view_range_m": 100.0, "right_view_range_m": 100.0},
+      {"s_start_m": 240.0, "s_end_m": 100000.0, "left": "DASHED", "right": "SOLID",
+       "left_confidence": 1.0, "right_confidence": 1.0,
+       "left_view_range_m": 100.0, "right_view_range_m": 100.0}
+    ],
+    "edges": []
+  },
+  "sensors": {"camera_range_m": 80.0, "camera_half_width_m": 5.25, "radar_range_m": 60.0},
+  "actors": [
+    {
+      "id": "truck", "class": "TRUCK", "t_start": 2.5, "t_end": 4.5,
+      "trajectory": [
+        {"t": 0.0, "s": 20.0, "d": -3.5, "v": 20.0},
+        {"t": 18.0, "s": 380.0, "d": -3.5, "v": 20.0}
+      ]
+    },
+    {
+      "id": "lead", "class": "CAR", "t_start": 8.0, "t_end": 9.0,
+      "trajectory": [
+        {"t": 0.0, "s": 54.0, "d": 0.0, "v": 17.0},
+        {"t": 18.0, "s": 360.0, "d": 0.0, "v": 17.0}
+      ]
+    }
+  ],
+  "environment": [
+    {"type": "crosswind", "start_s": 5.0, "duration_s": 1.6, "peak_mps": 30.0, "direction": -1.0,
+     "ramp_fraction": 0.25, "turbulence_intensity": 0.12, "center_of_pressure_x_m": 0.30},
+    {"type": "road_bank", "start_s": 11.7, "duration_s": 2.2, "peak_angle_deg": 2.0,
+     "direction": -1.0, "ramp_fraction": 0.25},
+    {"type": "crosswind", "start_s": 12.0, "duration_s": 1.5, "peak_mps": 22.0, "direction": -1.0,
+     "ramp_fraction": 0.40, "turbulence_intensity": 0.18, "center_of_pressure_x_m": 0.55},
+    {"type": "friction_patch", "start_s": 12.0, "duration_s": 2.0, "minimum_mu": 0.65, "ramp_fraction": 0.20}
+  ],
+  "adas": [
+    {"t": 0.0, "hwa": true, "lka": true, "elk": true, "desired_speed_mps": 20.0},
+    {"t": 1.0, "hwa": true}
+  ],
+  "longitudinal": {"acc_active": true, "reads_lateral_limits": false},
+  "behavior": {
+    "lka_tlc_s": 1.5,
+    "elk_boundary_tlc_s": 0.6,
+    "elk_object_tlc_s": 0.8,
+    "lka_confirm_frames": 2,
+    "reactivation_delay_s": 2.0,
+    "evasive_vlat_mps": 1.0,
+    "offset_trigger_clearance_m": 1.2,
+    "offset_m": 0.25,
+    "hwa_min_dlc_m": 0.2,
+    "hwa_max_center_offset_m": 0.5,
+    "hwa_max_heading_error_deg": 2.0,
+    "time_gap_s": 1.8,
+    "minimum_gap_m": 5.0,
+    "max_accel_mps2": 1.5,
+    "comfortable_decel_mps2": -2.5,
+    "emergency_decel_mps2": -6.0
+  },
+  "planner": {
+    "max_input_age_s": 0.25,
+    "future_stamp_tolerance_s": 0.01,
+    "coast_time_s": 1.0,
+    "stitch_threshold_m": 0.2,
+    "bridge_time_s": 0.5,
+    "continuity_position_m": 0.05,
+    "continuity_heading_rad": 0.005,
+    "continuity_curvature_inv_m": 0.0003,
+    "hwa_durations_s": [3.0, 4.0, 5.0],
+    "lane_change_durations_s": [12.0, 13.0, 14.0],
+    "lka_durations_s": [2.5, 3.0, 3.5, 4.0],
+    "elk_durations_s": [1.5, 2.0, 2.5, 3.0],
+    "delta_hysteresis_mps2": 0.3,
+    "epsilon_mps2": 0.2,
+    "flag_delay_s": 0.1,
+    "flag_hold_s": 0.5
+  },
+  "controller": {
+    "horizon_steps": 100,
+    "q": [120.0, 80.0, 2.0, 4.0],
+    "r": 1.0,
+    "rd": 12.0,
+    "fallback_gain": [0.16, 1.5, 0.08, 0.2],
+    "mpc_safety_envelope_rad": 0.0005,
+    "mpc_safety_envelope_by_mode_rad": {"HWA": 0.0, "LKA": 0.0, "ELK": 0.0005},
+    "quality_reserve_fraction": 0.2,
+    "controller_constraint_guard_fraction": 0.995
+  },
+  "expectations": {
+    "must_activate": ["HWA", "LKA"],
+    "dtle_min_m": -0.5,
+    "max_ay_mps2": 5.0,
+    "max_jerk_mps3": 100.0,
+    "path_valid_at_end": true
+  },
+  "output_dir": "outputs/baseline"
+}

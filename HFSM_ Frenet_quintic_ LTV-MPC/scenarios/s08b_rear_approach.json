@@ -1,0 +1,155 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S8b",
+  "title": "Lane change risk with rear approach",
+  "category": "HWA",
+  "requirements": [
+    "PP-SWR-052"
+  ],
+  "base": {
+    "duration_s": 10.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.0,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.0
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": true,
+        "elk": true
+      },
+      {
+        "t": 1.0,
+        "lane_change_request": "LEFT"
+      },
+      {
+        "t": 9.0,
+        "lane_change_request": "NONE"
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "HWA"
+      ]
+    }
+  },
+  "variants": [
+    {
+      "id": "S8b-a",
+      "title": "Safe rear vehicle",
+      "overrides": {
+        "actors": [
+          {
+            "id": "rear",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": -30.0,
+                "d": -3.5,
+                "v": 18.0
+              },
+              {
+                "t": 10.0,
+                "s": 150.0,
+                "d": -3.5,
+                "v": 18.0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "S8b-b",
+      "title": "Dangerous rear vehicle",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": -0.72,
+            "yaw_rad": -0.017453,
+            "v_lat_mps": 0.0
+          }
+        },
+        "actors": [
+          {
+            "id": "rear",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": -8.0,
+                "d": -3.5,
+                "v": 28.0
+              },
+              {
+                "t": 10.0,
+                "s": 272.0,
+                "d": -3.5,
+                "v": 28.0
+              }
+            ]
+          }
+        ],
+        "expectations": {
+          "must_activate": [
+            "ELK"
+          ]
+        }
+      }
+    },
+    {
+      "id": "S8b-c",
+      "title": "Safe rear vehicle, lane change right",
+      "overrides": {
+        "adas": [
+          {
+            "t": 0.0,
+            "hwa": true,
+            "lka": true,
+            "elk": true
+          },
+          {
+            "t": 1.0,
+            "lane_change_request": "RIGHT"
+          },
+          {
+            "t": 9.0,
+            "lane_change_request": "NONE"
+          }
+        ],
+        "actors": [
+          {
+            "id": "rear",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": -30.0,
+                "d": 3.5,
+                "v": 18.0
+              },
+              {
+                "t": 10.0,
+                "s": 150.0,
+                "d": 3.5,
+                "v": 18.0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

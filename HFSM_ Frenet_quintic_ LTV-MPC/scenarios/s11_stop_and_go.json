@@ -1,0 +1,166 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S11",
+  "title": "Highway stop and go",
+  "category": "HWA",
+  "requirements": [
+    "PP-SWR-070"
+  ],
+  "base": {
+    "duration_s": 16.0,
+    "ego": {
+      "speed_mps": 8.0,
+      "desired_speed_mps": 8.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.0,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.0
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": true,
+        "elk": true
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "HWA"
+      ],
+      "must_not_activate": [
+        "LKA",
+        "ELK"
+      ]
+    }
+  },
+  "variants": [
+    {
+      "id": "S11-a",
+      "title": "Lead stops for 8 s then accelerates",
+      "overrides": {
+        "actors": [
+          {
+            "id": "lead",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 25.0,
+                "d": 0.0,
+                "v": 0.0
+              },
+              {
+                "t": 8.0,
+                "s": 25.0,
+                "d": 0.0,
+                "v": 0.0
+              },
+              {
+                "t": 12.0,
+                "s": 45.0,
+                "d": 0.0,
+                "v": 5.0
+              },
+              {
+                "t": 16.0,
+                "s": 65.0,
+                "d": 0.0,
+                "v": 5.0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "S11-b",
+      "title": "Cut-in from the right lane",
+      "overrides": {
+        "actors": [
+          {
+            "id": "cutin",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 20.0,
+                "d": 3.5,
+                "v": 8.0
+              },
+              {
+                "t": 4.0,
+                "s": 52.0,
+                "d": 3.5,
+                "v": 8.0
+              },
+              {
+                "t": 6.0,
+                "s": 68.0,
+                "d": 0.0,
+                "v": 8.0
+              },
+              {
+                "t": 16.0,
+                "s": 148.0,
+                "d": 0.0,
+                "v": 8.0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "S11-c",
+      "title": "Stop and go up to 60 km/h",
+      "overrides": {
+        "ego": {
+          "speed_mps": 16.67,
+          "desired_speed_mps": 16.67,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": 0.0,
+            "yaw_rad": 0.0,
+            "v_lat_mps": 0.0
+          }
+        },
+        "actors": [
+          {
+            "id": "lead",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 35.0,
+                "d": 0.0,
+                "v": 0.0
+              },
+              {
+                "t": 6.0,
+                "s": 35.0,
+                "d": 0.0,
+                "v": 0.0
+              },
+              {
+                "t": 12.0,
+                "s": 85.0,
+                "d": 0.0,
+                "v": 16.67
+              },
+              {
+                "t": 16.0,
+                "s": 152.0,
+                "d": 0.0,
+                "v": 16.67
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

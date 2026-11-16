@@ -1,0 +1,142 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S16",
+  "title": "Repeated interventions and re-arming",
+  "category": "LKA",
+  "requirements": [
+    "PP-SWR-081"
+  ],
+  "base": {
+    "duration_s": 14.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.72,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.25
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": true,
+        "elk": true
+      }
+    ],
+    "environment": [
+      {
+        "type": "crosswind",
+        "start_s": 6.0,
+        "duration_s": 3.0,
+        "peak_mps": 30.0,
+        "direction": 1.0,
+        "turbulence_intensity": 0.1
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "LKA"
+      ],
+      "max_jerk_mps3": 120.0
+    }
+  },
+  "variants": [
+    {
+      "id": "S16-a",
+      "title": "One re-trigger after cooldown",
+      "overrides": {}
+    },
+    {
+      "id": "S16-b",
+      "title": "Two re-triggers",
+      "overrides": {
+        "environment": [
+          {
+            "type": "crosswind",
+            "start_s": 6.0,
+            "duration_s": 2.0,
+            "peak_mps": 28.0,
+            "direction": 1.0,
+            "turbulence_intensity": 0.1
+          },
+          {
+            "type": "crosswind",
+            "start_s": 11.0,
+            "duration_s": 2.0,
+            "peak_mps": 28.0,
+            "direction": -1.0,
+            "turbulence_intensity": 0.1
+          }
+        ]
+      }
+    },
+    {
+      "id": "S16-c",
+      "title": "Solid line re-trigger (ELK)",
+      "overrides": {
+        "environment": [
+          {
+            "type": "crosswind",
+            "start_s": 7.0,
+            "duration_s": 3.0,
+            "peak_mps": 30.0,
+            "direction": 1.0,
+            "turbulence_intensity": 0.1
+          }
+        ],
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 2000.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "SOLID",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        },
+        "expectations": {
+          "must_activate": [
+            "ELK"
+          ],
+          "max_jerk_mps3": 120.0
+        }
+      }
+    }
+  ]
+}

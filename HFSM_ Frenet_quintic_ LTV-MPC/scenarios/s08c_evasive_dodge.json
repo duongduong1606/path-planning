@@ -1,0 +1,95 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S8c",
+  "title": "Evasive driver steering",
+  "category": "ADAS",
+  "requirements": [
+    "PP-SWR-053"
+  ],
+  "base": {
+    "duration_s": 6.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.0,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.0
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": true,
+        "elk": true,
+        "turn_signal": "NONE"
+      },
+      {
+        "t": 1.0,
+        "driver_torque_nm": 3.5,
+        "driver_rate_dps": 180.0
+      },
+      {
+        "t": 2.5,
+        "driver_torque_nm": 0.0,
+        "driver_rate_dps": 0.0
+      }
+    ],
+    "expectations": {
+      "must_not_activate": [
+        "ELK"
+      ]
+    }
+  },
+  "variants": [
+    {
+      "id": "S8c-a",
+      "title": "3.5 Nm evasive torque",
+      "overrides": {}
+    },
+    {
+      "id": "S8c-b",
+      "title": "4.5 Nm fast evasive torque",
+      "overrides": {
+        "adas": [
+          {
+            "t": 0.0,
+            "hwa": true,
+            "lka": true,
+            "elk": true,
+            "turn_signal": "NONE"
+          },
+          {
+            "t": 1.0,
+            "driver_torque_nm": 4.5,
+            "driver_rate_dps": 300.0
+          },
+          {
+            "t": 2.2,
+            "driver_torque_nm": 0.0,
+            "driver_rate_dps": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "S8c-c",
+      "title": "Initial lateral velocity without signal",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": 0.4,
+            "yaw_rad": 0.0,
+            "v_lat_mps": 1.2
+          }
+        }
+      }
+    }
+  ]
+}

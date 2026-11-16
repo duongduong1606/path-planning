@@ -1,0 +1,238 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S6b",
+  "title": "Abnormal lane expansion",
+  "category": "HWA",
+  "requirements": [
+    "PP-SWR-042"
+  ],
+  "base": {
+    "duration_s": 12.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.0,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.0
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": false,
+        "elk": false
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "HWA"
+      ],
+      "max_abs_lateral_error_m": 0.5
+    }
+  },
+  "variants": [
+    {
+      "id": "S6b-a",
+      "title": "Expansion 3.5 to 5.0 m",
+      "overrides": {
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 2000.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            },
+            {
+              "s_m": 100.0,
+              "width_m": 5.0
+            },
+            {
+              "s_m": 220.0,
+              "width_m": 5.0
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "S6b-b",
+      "title": "Expansion in a right curve",
+      "overrides": {
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 40.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.0,
+              "end_curvature_inv_m": 0.0016666666666666668
+            },
+            {
+              "type": "arc",
+              "length_m": 200.0,
+              "radius_m": 600.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.0016666666666666668,
+              "end_curvature_inv_m": 0.0
+            },
+            {
+              "type": "straight",
+              "length_m": 1200.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            },
+            {
+              "s_m": 100.0,
+              "width_m": 5.0
+            },
+            {
+              "s_m": 240.0,
+              "width_m": 5.0
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "S6b-c",
+      "title": "Expansion while offset right",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": 0.3,
+            "yaw_rad": 0.0,
+            "v_lat_mps": 0.0
+          }
+        },
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 2000.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            },
+            {
+              "s_m": 100.0,
+              "width_m": 5.0
+            },
+            {
+              "s_m": 220.0,
+              "width_m": 5.0
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

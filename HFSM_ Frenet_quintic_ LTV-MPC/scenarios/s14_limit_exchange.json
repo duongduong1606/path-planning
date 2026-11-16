@@ -1,0 +1,156 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S14",
+  "title": "Lateral and longitudinal limit exchange",
+  "category": "HWA",
+  "requirements": [
+    "PP-SWR-073"
+  ],
+  "base": {
+    "duration_s": 18.0,
+    "ego": {
+      "speed_mps": 25.0,
+      "desired_speed_mps": 25.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.0,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.0
+      }
+    },
+    "road": {
+      "lane_width_m": 3.5,
+      "centerline": [
+        {
+          "s_m": 0.0,
+          "type": "straight",
+          "length_m": 80.0
+        },
+        {
+          "type": "clothoid",
+          "length_m": 100.0,
+          "start_curvature_inv_m": 0.0,
+          "end_curvature_inv_m": 0.005
+        },
+        {
+          "type": "arc",
+          "length_m": 160.0,
+          "radius_m": 200.0
+        },
+        {
+          "type": "clothoid",
+          "length_m": 100.0,
+          "start_curvature_inv_m": 0.005,
+          "end_curvature_inv_m": 0.0
+        },
+        {
+          "type": "straight",
+          "length_m": 1200.0
+        }
+      ],
+      "markings": [
+        {
+          "s_start_m": 0.0,
+          "s_end_m": 100000.0,
+          "left": "DASHED",
+          "right": "DASHED",
+          "left_confidence": 1.0,
+          "right_confidence": 1.0,
+          "left_view_range_m": 100.0,
+          "right_view_range_m": 100.0
+        }
+      ],
+      "edges": [],
+      "width_profile": [
+        {
+          "s_m": 0.0,
+          "width_m": 3.5
+        }
+      ],
+      "lanes": {
+        "ego_index": 1,
+        "widths_m": [
+          3.5,
+          3.5,
+          3.5
+        ],
+        "roles": [
+          "CAR",
+          "CAR",
+          "CAR"
+        ]
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": false,
+        "elk": false
+      }
+    ],
+    "behavior": {
+      "ays_max_mps2": 3.0
+    },
+    "longitudinal": {
+      "acc_active": true,
+      "reads_lateral_limits": true
+    },
+    "expectations": {
+      "must_activate": [
+        "HWA"
+      ],
+      "min_target_speed_mps": 21.0
+    }
+  },
+  "variants": [
+    {
+      "id": "S14-a",
+      "title": "ACC reads the lateral limit",
+      "overrides": {}
+    },
+    {
+      "id": "S14-b",
+      "title": "ACC ignores the lateral limit",
+      "overrides": {
+        "longitudinal": {
+          "acc_active": true,
+          "reads_lateral_limits": false
+        },
+        "expectations": {
+          "must_activate": [
+            "HWA"
+          ],
+          "min_target_speed_mps": 24.8
+        }
+      }
+    },
+    {
+      "id": "S14-c",
+      "title": "Reads the limit behind a lead vehicle",
+      "overrides": {
+        "actors": [
+          {
+            "id": "lead",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 30.0,
+                "d": 0.0,
+                "v": 23.0
+              },
+              {
+                "t": 18.0,
+                "s": 444.0,
+                "d": 0.0,
+                "v": 23.0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

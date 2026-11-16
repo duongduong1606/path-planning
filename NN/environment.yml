@@ -1,0 +1,26 @@
+name: lateral-planning
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - --index-url https://download.pytorch.org/whl/cu128
+      - torch==2.11.0
+      - torchvision==0.26.0
+      - --extra-index-url https://pypi.org/simple
+      - numpy>=2.0
+      - opencv-python>=4.8
+      - h5py>=3.10
+      - onnx>=1.15
+      # 1.27+ defaults to CUDA 13 on PyPI; 1.26.0 matches torch cu128.
+      - onnxruntime-gpu==1.26.0
+      - addict>=2.4
+      - tqdm>=4.66
+      - pathspec
+      - imagesize
+      - ujson
+      - pytest>=7.4
+      - albumentations>=1.4,<2
+      - scipy>=1.12
+      - shapely>=2.0

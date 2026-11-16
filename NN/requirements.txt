@@ -1,0 +1,10 @@
+torch>=2.1
+numpy>=1.24
+opencv-python>=4.8
+h5py>=3.10
+onnx>=1.15
+onnxruntime-gpu==1.26.0; platform_system == "Windows"
+pytest>=7.4
+albumentations>=1.4,<2
+scipy>=1.12
+shapely>=2.0

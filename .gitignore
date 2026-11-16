@@ -1,0 +1,65 @@
+# ============================================================================
+# Repository layout
+#   Tracked : NN/  and  HFSM_ Frenet_quintic_ LTV-MPC/
+#   Local   : everything else below (datasets, weights, generated outputs)
+# ============================================================================
+
+# --- Other local folders and course material (not part of this repo) --------
+/Highway Lane Change Planner and Controller/
+/Highway Trajectory Planning Using Frenet Reference Path/
+/Path-planning-for-the-L2-lateral-feature/
+/tmp/
+/*.pdf
+
+# --- Datasets and model weights (exceed GitHub limits) ----------------------
+# comma2k19 clips, lane caches, HDF5 windows, teacher caches (~22 GB).
+# Rebuild with build_dataset.py / prepare_*.py after downloading comma2k19.
+NN/data/
+# Polar R-CNN and openpilot checkpoints (~825 MB; one ONNX file is 733 MB).
+# Download from the upstream release / re-export with export_*.py.
+NN/models/
+
+# --- Generated scenario bundles for the static UI (~61 MB) ------------------
+# Rebuild with: python -m l2_path_planner ui --all
+HFSM_ Frenet_quintic_ LTV-MPC/ui/data/
+
+# --- Simulation logs and run outputs ---------------------------------------
+# Rebuild with: python -m l2_path_planner run --config configs/baseline.json
+HFSM_ Frenet_quintic_ LTV-MPC/outputs/
+
+# --- Vendored third-party clones (kept locally, not versioned) --------------
+# PolarRCNN and Ultra-Fast-Lane-Detection-v2 are upstream clones with their own
+# .git history. Clone them next to this project instead of committing them:
+#   NN/third_party/PolarRCNN
+#   NN/third_party/Ultra-Fast-Lane-Detection-v2
+NN/third_party/
+
+# --- Python caches, build artefacts, virtual environments -------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+pytest-cache-files-*/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# --- Large binary formats (defence in depth) --------------------------------
+*.hevc
+*.mp4
+*.avi
+*.h5
+*.hdf5
+*.bag
+
+# --- OS / editor metadata ---------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

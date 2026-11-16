@@ -1,0 +1,179 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S12",
+  "title": "Low friction curve with oncoming traffic",
+  "category": "HWA",
+  "requirements": [
+    "PP-SWR-071"
+  ],
+  "base": {
+    "duration_s": 10.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.0,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.0
+      }
+    },
+    "road": {
+      "lane_width_m": 3.5,
+      "centerline": [
+        {
+          "s_m": 0.0,
+          "type": "straight",
+          "length_m": 60.0
+        },
+        {
+          "type": "clothoid",
+          "length_m": 40.0,
+          "start_curvature_inv_m": 0.0,
+          "end_curvature_inv_m": 0.0033333333333333335
+        },
+        {
+          "type": "arc",
+          "length_m": 160.0,
+          "radius_m": 300.0
+        },
+        {
+          "type": "clothoid",
+          "length_m": 40.0,
+          "start_curvature_inv_m": 0.0033333333333333335,
+          "end_curvature_inv_m": 0.0
+        },
+        {
+          "type": "straight",
+          "length_m": 1200.0
+        }
+      ],
+      "markings": [
+        {
+          "s_start_m": 0.0,
+          "s_end_m": 100000.0,
+          "left": "DASHED",
+          "right": "DASHED",
+          "left_confidence": 1.0,
+          "right_confidence": 1.0,
+          "left_view_range_m": 100.0,
+          "right_view_range_m": 100.0
+        }
+      ],
+      "edges": [],
+      "width_profile": [
+        {
+          "s_m": 0.0,
+          "width_m": 3.5
+        }
+      ],
+      "lanes": {
+        "ego_index": 0,
+        "widths_m": [
+          3.5
+        ],
+        "roles": [
+          "CAR"
+        ],
+        "opposing": {
+          "count": 1,
+          "width_m": 3.5,
+          "separator": "DOUBLE_YELLOW"
+        }
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": true,
+        "elk": true
+      }
+    ],
+    "environment": [
+      {
+        "type": "rain",
+        "start_s": 0.0,
+        "mu": 0.5
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "HWA"
+      ],
+      "max_ay_mps2": 4.5,
+      "dtle_min_m": -0.6
+    }
+  },
+  "variants": [
+    {
+      "id": "S12-a",
+      "title": "mu=0.50, R=300 m",
+      "overrides": {
+        "actors": [
+          {
+            "id": "oncoming",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 100.0,
+                "d": -1.7,
+                "v": -20.0
+              },
+              {
+                "t": 10.0,
+                "s": -100.0,
+                "d": -1.7,
+                "v": -20.0
+              }
+            ],
+            "direction": "ONCOMING"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S12-b",
+      "title": "mu=0.40, R=300 m",
+      "overrides": {
+        "environment": [
+          {
+            "type": "rain",
+            "start_s": 0.0,
+            "mu": 0.4
+          }
+        ],
+        "expectations": {
+          "must_activate": [
+            "HWA"
+          ],
+          "max_ay_mps2": 4.5,
+          "dtle_min_m": -0.7
+        }
+      }
+    },
+    {
+      "id": "S12-c",
+      "title": "mu=0.50 with crosswind",
+      "overrides": {
+        "environment": [
+          {
+            "type": "rain",
+            "start_s": 0.0,
+            "mu": 0.5
+          },
+          {
+            "type": "crosswind",
+            "start_s": 3.0,
+            "duration_s": 3.0,
+            "peak_mps": 16.0,
+            "direction": -1.0,
+            "turbulence_intensity": 0.1
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S2",
+  "title": "HWA entry with initial offset",
+  "category": "HWA",
+  "requirements": [
+    "PP-SWR-014"
+  ],
+  "base": {
+    "duration_s": 10.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.4,
+        "yaw_rad": 0.017453,
+        "v_lat_mps": 0.0
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": false,
+        "elk": false
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "HWA"
+      ],
+      "max_abs_lateral_error_m": 0.75
+    }
+  },
+  "variants": [
+    {
+      "id": "S2-a",
+      "title": "Offset right 0.4 m, heading +1 deg",
+      "overrides": {}
+    },
+    {
+      "id": "S2-b",
+      "title": "Offset left 0.45 m, heading -1 deg",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": -0.45,
+            "yaw_rad": -0.017453,
+            "v_lat_mps": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "S2-c",
+      "title": "Offset right 0.35 m, heading +0.5 deg",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": 0.35,
+            "yaw_rad": 0.008727,
+            "v_lat_mps": 0.0
+          }
+        }
+      }
+    }
+  ]
+}

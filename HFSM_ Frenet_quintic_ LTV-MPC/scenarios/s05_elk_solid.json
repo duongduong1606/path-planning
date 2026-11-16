@@ -1,0 +1,192 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S5",
+  "title": "ELK solid line departure",
+  "category": "ELK",
+  "requirements": [
+    "PP-SWR-040"
+  ],
+  "base": {
+    "duration_s": 8.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.68,
+        "yaw_rad": 0.017453,
+        "v_lat_mps": 0.0
+      }
+    },
+    "road": {
+      "lane_width_m": 3.5,
+      "centerline": [
+        {
+          "s_m": 0.0,
+          "type": "straight",
+          "length_m": 2000.0
+        }
+      ],
+      "markings": [
+        {
+          "s_start_m": 0.0,
+          "s_end_m": 100000.0,
+          "left": "DASHED",
+          "right": "SOLID",
+          "left_confidence": 1.0,
+          "right_confidence": 1.0,
+          "left_view_range_m": 100.0,
+          "right_view_range_m": 100.0
+        }
+      ],
+      "edges": [],
+      "width_profile": [
+        {
+          "s_m": 0.0,
+          "width_m": 3.5
+        }
+      ],
+      "lanes": {
+        "ego_index": 1,
+        "widths_m": [
+          3.5,
+          3.5,
+          3.5
+        ],
+        "roles": [
+          "CAR",
+          "CAR",
+          "CAR"
+        ]
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": false,
+        "lka": false,
+        "elk": true
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "ELK"
+      ],
+      "dtle_min_m": -0.4
+    }
+  },
+  "variants": [
+    {
+      "id": "S5-a",
+      "title": "Right solid line, drift right",
+      "overrides": {}
+    },
+    {
+      "id": "S5-b",
+      "title": "Left solid line, drift left",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": -0.68,
+            "yaw_rad": -0.017453,
+            "v_lat_mps": 0.0
+          }
+        },
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 2000.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "SOLID",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "S5-c",
+      "title": "Double line, drift right",
+      "overrides": {
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 2000.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DOUBLE",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

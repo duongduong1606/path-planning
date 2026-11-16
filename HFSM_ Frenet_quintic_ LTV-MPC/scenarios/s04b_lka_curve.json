@@ -1,0 +1,256 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S4b",
+  "title": "LKA lane departure on a curve",
+  "category": "LKA",
+  "requirements": [
+    "PP-SWR-032"
+  ],
+  "base": {
+    "duration_s": 10.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.72,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.25
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": false,
+        "lka": true,
+        "elk": true
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "LKA"
+      ],
+      "dtle_min_m": -0.6
+    }
+  },
+  "variants": [
+    {
+      "id": "S4b-a",
+      "title": "Right curve, drift outward",
+      "overrides": {
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 40.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.0,
+              "end_curvature_inv_m": 0.002
+            },
+            {
+              "type": "arc",
+              "length_m": 160.0,
+              "radius_m": 500.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.002,
+              "end_curvature_inv_m": 0.0
+            },
+            {
+              "type": "straight",
+              "length_m": 1200.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "S4b-b",
+      "title": "Left curve, drift outward",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": -0.72,
+            "yaw_rad": 0.0,
+            "v_lat_mps": -0.25
+          }
+        },
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 40.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.0,
+              "end_curvature_inv_m": -0.002
+            },
+            {
+              "type": "arc",
+              "length_m": 160.0,
+              "radius_m": -500.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": -0.002,
+              "end_curvature_inv_m": 0.0
+            },
+            {
+              "type": "straight",
+              "length_m": 1200.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "S4b-c",
+      "title": "R=300 m right curve",
+      "overrides": {
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 40.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.0,
+              "end_curvature_inv_m": 0.0033333333333333335
+            },
+            {
+              "type": "arc",
+              "length_m": 160.0,
+              "radius_m": 300.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.0033333333333333335,
+              "end_curvature_inv_m": 0.0
+            },
+            {
+              "type": "straight",
+              "length_m": 1200.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

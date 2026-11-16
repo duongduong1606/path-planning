@@ -1,0 +1,227 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S7",
+  "title": "ELK oncoming vehicle",
+  "category": "ELK",
+  "requirements": [
+    "PP-SWR-050"
+  ],
+  "base": {
+    "duration_s": 8.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": -0.72,
+        "yaw_rad": -0.017453,
+        "v_lat_mps": 0.0
+      }
+    },
+    "road": {
+      "lane_width_m": 3.5,
+      "centerline": [
+        {
+          "s_m": 0.0,
+          "type": "straight",
+          "length_m": 2000.0
+        }
+      ],
+      "markings": [
+        {
+          "s_start_m": 0.0,
+          "s_end_m": 100000.0,
+          "left": "SOLID",
+          "right": "DASHED",
+          "left_confidence": 1.0,
+          "right_confidence": 1.0,
+          "left_view_range_m": 100.0,
+          "right_view_range_m": 100.0
+        }
+      ],
+      "edges": [],
+      "width_profile": [
+        {
+          "s_m": 0.0,
+          "width_m": 3.5
+        }
+      ],
+      "lanes": {
+        "ego_index": 0,
+        "widths_m": [
+          3.5
+        ],
+        "roles": [
+          "CAR"
+        ],
+        "opposing": {
+          "count": 1,
+          "width_m": 3.5,
+          "separator": "DOUBLE_YELLOW"
+        }
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": true,
+        "elk": true
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "ELK"
+      ],
+      "dtle_min_m": -0.5
+    }
+  },
+  "variants": [
+    {
+      "id": "S7-a",
+      "title": "10 percent lateral overlap",
+      "overrides": {
+        "actors": [
+          {
+            "id": "oncoming",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 80.0,
+                "d": -1.7,
+                "v": -20.0
+              },
+              {
+                "t": 8.0,
+                "s": -80.0,
+                "d": -1.7,
+                "v": -20.0
+              }
+            ],
+            "direction": "ONCOMING"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S7-b",
+      "title": "Deep overlap",
+      "overrides": {
+        "actors": [
+          {
+            "id": "oncoming",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 80.0,
+                "d": -1.5,
+                "v": -20.0
+              },
+              {
+                "t": 8.0,
+                "s": -80.0,
+                "d": -1.5,
+                "v": -20.0
+              }
+            ],
+            "direction": "ONCOMING"
+          }
+        ]
+      }
+    },
+    {
+      "id": "S7-c",
+      "title": "Oncoming in a right curve",
+      "overrides": {
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 40.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.0,
+              "end_curvature_inv_m": 0.0016666666666666668
+            },
+            {
+              "type": "arc",
+              "length_m": 160.0,
+              "radius_m": 600.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.0016666666666666668,
+              "end_curvature_inv_m": 0.0
+            },
+            {
+              "type": "straight",
+              "length_m": 1200.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "SOLID",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 0,
+            "widths_m": [
+              3.5
+            ],
+            "roles": [
+              "CAR"
+            ],
+            "opposing": {
+              "count": 1,
+              "width_m": 3.5,
+              "separator": "DOUBLE_YELLOW"
+            }
+          }
+        },
+        "actors": [
+          {
+            "id": "oncoming",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 80.0,
+                "d": -1.7,
+                "v": -20.0
+              },
+              {
+                "t": 8.0,
+                "s": -80.0,
+                "d": -1.7,
+                "v": -20.0
+              }
+            ],
+            "direction": "ONCOMING"
+          }
+        ]
+      }
+    }
+  ]
+}

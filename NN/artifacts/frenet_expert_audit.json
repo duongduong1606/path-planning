@@ -1,0 +1,69 @@
+{
+  "segments": 407,
+  "manifest_segments": 407,
+  "segment_coverage": 1.0,
+  "candidates": 416565,
+  "valid_expert_labels": 87871,
+  "expert_label_fraction": 0.21094186981623517,
+  "by_split": {
+    "test": {
+      "candidates": 45360,
+      "valid_expert_labels": 7327,
+      "expert_label_fraction": 0.1615299823633157
+    },
+    "train": {
+      "candidates": 329540,
+      "valid_expert_labels": 76345,
+      "expert_label_fraction": 0.23167142076834374
+    },
+    "validation": {
+      "candidates": 41665,
+      "valid_expert_labels": 4199,
+      "expert_label_fraction": 0.10078003120124805
+    }
+  },
+  "highest_intervention_routes": [
+    {
+      "route": "99c94dc769b5d96e_2018-06-25--22-19-02",
+      "candidates": 12814,
+      "valid_expert_labels": 8368,
+      "expert_label_fraction": 0.6530357421570158
+    },
+    {
+      "route": "99c94dc769b5d96e_2018-07-02--19-08-27",
+      "candidates": 14589,
+      "valid_expert_labels": 8791,
+      "expert_label_fraction": 0.6025772842552608
+    },
+    {
+      "route": "99c94dc769b5d96e_2018-07-02--09-20-11",
+      "candidates": 12069,
+      "valid_expert_labels": 6907,
+      "expert_label_fraction": 0.5722926505924268
+    },
+    {
+      "route": "99c94dc769b5d96e_2018-06-27--15-03-44",
+      "candidates": 22667,
+      "valid_expert_labels": 10939,
+      "expert_label_fraction": 0.48259584417876206
+    },
+    {
+      "route": "99c94dc769b5d96e_2018-06-24--12-20-02",
+      "candidates": 4592,
+      "valid_expert_labels": 1586,
+      "expert_label_fraction": 0.34538327526132406
+    }
+  ],
+  "human_boundary_violation_on_corrected_subset": 0.5642020689419718,
+  "expert_boundary_violation": 0.0,
+  "correction_cause_fraction_on_corrected_subset": {
+    "lane": 0.5642020689419718,
+    "velocity": 0.3432417976351697,
+    "acceleration": 0.1182984147215805,
+    "jerk": 0.6503397025184645
+  },
+  "mean_correction_l2": 0.782258152961731,
+  "p95_correction_l2": 2.5207221508026123,
+  "expert_max_lateral_accel_p95": 2.3241965910940197,
+  "expert_max_lateral_jerk_p95": 5.000009193420412
+}

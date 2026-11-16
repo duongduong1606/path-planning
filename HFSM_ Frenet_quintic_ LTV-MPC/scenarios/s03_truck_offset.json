@@ -1,0 +1,118 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S3",
+  "title": "Adjacent truck offset",
+  "category": "HWA",
+  "requirements": [
+    "PP-SWR-020",
+    "PP-SWR-021"
+  ],
+  "base": {
+    "duration_s": 10.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.0,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.0
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": false,
+        "elk": false
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "HWA"
+      ],
+      "max_abs_lateral_error_m": 0.6
+    }
+  },
+  "variants": [
+    {
+      "id": "S3-a",
+      "title": "Truck on the left",
+      "overrides": {
+        "actors": [
+          {
+            "id": "truck",
+            "class": "TRUCK",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 5.0,
+                "d": -3.5,
+                "v": 20.0
+              },
+              {
+                "t": 10.0,
+                "s": 205.0,
+                "d": -3.5,
+                "v": 20.0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "S3-b",
+      "title": "Truck on the right",
+      "overrides": {
+        "actors": [
+          {
+            "id": "truck",
+            "class": "TRUCK",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 5.0,
+                "d": 3.5,
+                "v": 20.0
+              },
+              {
+                "t": 10.0,
+                "s": 205.0,
+                "d": 3.5,
+                "v": 20.0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "S3-c",
+      "title": "Truck closer on the left",
+      "overrides": {
+        "actors": [
+          {
+            "id": "truck",
+            "class": "TRUCK",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 5.0,
+                "d": -3.2,
+                "v": 20.0
+              },
+              {
+                "t": 10.0,
+                "s": 205.0,
+                "d": -3.2,
+                "v": 20.0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S8",
+  "title": "ELK blind spot despite turn signal",
+  "category": "ELK",
+  "requirements": [
+    "PP-SWR-051"
+  ],
+  "base": {
+    "duration_s": 8.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": -0.72,
+        "yaw_rad": 0.0,
+        "v_lat_mps": -0.35
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": true,
+        "elk": true,
+        "turn_signal": "LEFT"
+      },
+      {
+        "t": 6.0,
+        "turn_signal": "NONE"
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "ELK"
+      ],
+      "dtle_min_m": -0.5
+    }
+  },
+  "variants": [
+    {
+      "id": "S8-a",
+      "title": "Truck alongside on the left",
+      "overrides": {
+        "actors": [
+          {
+            "id": "truck",
+            "class": "TRUCK",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 5.0,
+                "d": -3.5,
+                "v": 20.0
+              },
+              {
+                "t": 8.0,
+                "s": 165.0,
+                "d": -3.5,
+                "v": 20.0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "S8-b",
+      "title": "Car on the right with right signal",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": 0.72,
+            "yaw_rad": 0.0,
+            "v_lat_mps": 0.35
+          }
+        },
+        "adas": [
+          {
+            "t": 0.0,
+            "hwa": true,
+            "lka": true,
+            "elk": true,
+            "turn_signal": "RIGHT"
+          },
+          {
+            "t": 6.0,
+            "turn_signal": "NONE"
+          }
+        ],
+        "actors": [
+          {
+            "id": "car",
+            "class": "CAR",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": 5.0,
+                "d": 3.5,
+                "v": 20.0
+              },
+              {
+                "t": 8.0,
+                "s": 165.0,
+                "d": 3.5,
+                "v": 20.0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "S8-c",
+      "title": "Truck slightly behind on the left",
+      "overrides": {
+        "actors": [
+          {
+            "id": "truck",
+            "class": "TRUCK",
+            "trajectory": [
+              {
+                "t": 0.0,
+                "s": -3.0,
+                "d": -3.5,
+                "v": 20.0
+              },
+              {
+                "t": 8.0,
+                "s": 157.0,
+                "d": -3.5,
+                "v": 20.0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

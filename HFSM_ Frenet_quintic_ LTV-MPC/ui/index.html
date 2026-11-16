@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>L2 Lateral Planner — Scenario Viewer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">L2</span>
+      <div>
+        <h1>Lateral Path Planner</h1>
+        <p class="sub">HFSM · Frenet quintic · LTV-MPC</p>
+      </div>
+    </div>
+    <div class="scenario-picker">
+      <label for="scenario-select">Scenario</label>
+      <select id="scenario-select" aria-label="Scenario selector"></select>
+      <span id="load-status" class="load-status"></span>
+    </div>
+    <div id="verdict" class="verdict" hidden></div>
+  </header>
+
+  <main id="app" hidden>
+    <section class="stage">
+      <div class="stage-head">
+        <div>
+          <h2 id="scenario-title">—</h2>
+          <p id="scenario-meta" class="meta"></p>
+        </div>
+        <div class="stage-tools">
+          <button id="btn-follow" class="ghost active" type="button">Follow ego</button>
+          <button id="btn-fit" class="ghost" type="button">Fit route</button>
+        </div>
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="scene" aria-label="Top-down scenario view"></canvas>
+        <div id="scene-hud" class="scene-hud"></div>
+      </div>
+
+      <div class="legend" id="legend"></div>
+
+      <div class="transport">
+        <button id="btn-back" type="button" title="Step back">⏮</button>
+        <button id="btn-play" type="button" class="play">▶ Play</button>
+        <button id="btn-fwd" type="button" title="Step forward">⏭</button>
+        <input id="scrub" type="range" min="0" max="1" step="0.001" value="0" aria-label="Timeline scrubber">
+        <span id="clock" class="clock">0.00 s</span>
+        <label class="speed">Speed
+          <input id="play-speed" type="range" min="0.25" max="4" step="0.25" value="1" aria-label="Playback speed">
+          <span id="play-speed-label">1×</span>
+        </label>
+      </div>
+
+      <div id="timeline" class="timeline" aria-label="Event timeline"></div>
+    </section>
+
+    <aside class="side">
+      <div class="kpi-grid" id="kpis"></div>
+      <div class="panel">
+        <h3>Expectations</h3>
+        <div id="checks" class="checks"></div>
+      </div>
+      <div class="panel">
+        <h3>Metrics</h3>
+        <div id="metrics" class="metrics"></div>
+      </div>
+    </aside>
+
+    <section class="plots">
+      <figure>
+        <figcaption>Speed &amp; target speed <span class="unit">m/s</span></figcaption>
+        <canvas id="plot-speed"></canvas>
+      </figure>
+      <figure>
+        <figcaption>Lateral error &amp; lane margin <span class="unit">m</span></figcaption>
+        <canvas id="plot-lateral"></canvas>
+      </figure>
+      <figure>
+        <figcaption>Steering command <span class="unit">rad</span> · lateral accel <span class="unit">m/s²</span></figcaption>
+        <canvas id="plot-steer"></canvas>
+      </figure>
+    </section>
+  </main>
+
+  <div id="empty" class="empty">
+    <h2>No scenario data loaded</h2>
+    <p>Run <code>python -m l2_path_planner ui --scenario S4-a</code> to generate <code>ui/data.js</code>, then reload this page.</p>
+    <p class="muted">You can also open any exported <code>outputs/&lt;scenario&gt;/ui_data.json</code>.</p>
+  </div>
+
+  <script src="scenarios.js?v=3"></script>
+  <script src="data.js?v=3"></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>

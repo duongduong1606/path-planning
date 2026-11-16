@@ -1,0 +1,277 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S1b",
+  "title": "Sharp curve speed adaptation",
+  "category": "HWA",
+  "requirements": [
+    "PP-SWR-012",
+    "PP-SWR-013"
+  ],
+  "base": {
+    "duration_s": 20.0,
+    "ego": {
+      "speed_mps": 25.0,
+      "desired_speed_mps": 25.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.0,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.0
+      }
+    },
+    "sensors": {
+      "camera_range_m": 40.0,
+      "camera_half_width_m": 5.25,
+      "radar_range_m": 60.0
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": false,
+        "elk": false
+      }
+    ],
+    "behavior": {
+      "ays_max_mps2": 1.8
+    },
+    "expectations": {
+      "must_activate": [
+        "HWA"
+      ],
+      "min_target_speed_mps": 19.5,
+      "dtle_min_m": -0.8
+    }
+  },
+  "variants": [
+    {
+      "id": "S1b-a",
+      "title": "R=200 m, dry",
+      "overrides": {
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 80.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 100.0,
+              "start_curvature_inv_m": 0.0,
+              "end_curvature_inv_m": 0.005
+            },
+            {
+              "type": "arc",
+              "length_m": 160.0,
+              "radius_m": 200.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 100.0,
+              "start_curvature_inv_m": 0.005,
+              "end_curvature_inv_m": 0.0
+            },
+            {
+              "type": "straight",
+              "length_m": 1200.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "S1b-b",
+      "title": "R=150 m, dry",
+      "overrides": {
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 80.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 100.0,
+              "start_curvature_inv_m": 0.0,
+              "end_curvature_inv_m": 0.006666666666666667
+            },
+            {
+              "type": "arc",
+              "length_m": 160.0,
+              "radius_m": 150.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 100.0,
+              "start_curvature_inv_m": 0.006666666666666667,
+              "end_curvature_inv_m": 0.0
+            },
+            {
+              "type": "straight",
+              "length_m": 1200.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        },
+        "expectations": {
+          "must_activate": [
+            "HWA"
+          ],
+          "min_target_speed_mps": 17.0,
+          "dtle_min_m": -0.8
+        }
+      }
+    },
+    {
+      "id": "S1b-c",
+      "title": "R=250 m, wet",
+      "overrides": {
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 80.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 100.0,
+              "start_curvature_inv_m": 0.0,
+              "end_curvature_inv_m": 0.004
+            },
+            {
+              "type": "arc",
+              "length_m": 160.0,
+              "radius_m": 250.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 100.0,
+              "start_curvature_inv_m": 0.004,
+              "end_curvature_inv_m": 0.0
+            },
+            {
+              "type": "straight",
+              "length_m": 1200.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        },
+        "environment": [
+          {
+            "type": "rain",
+            "start_s": 0.0,
+            "mu": 0.6
+          }
+        ],
+        "expectations": {
+          "must_activate": [
+            "HWA"
+          ],
+          "min_target_speed_mps": 17.0,
+          "dtle_min_m": -0.8
+        }
+      }
+    }
+  ]
+}

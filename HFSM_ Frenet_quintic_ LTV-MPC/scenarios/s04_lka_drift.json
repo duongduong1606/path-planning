@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S4",
+  "title": "LKA lane departure on a straight road",
+  "category": "LKA",
+  "requirements": [
+    "PP-SWR-030",
+    "PP-SWR-031"
+  ],
+  "base": {
+    "duration_s": 8.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.72,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.25
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": false,
+        "lka": true,
+        "elk": true
+      }
+    ],
+    "expectations": {
+      "must_activate": [
+        "LKA"
+      ],
+      "must_not_activate": [
+        "ELK"
+      ],
+      "dtle_min_m": -0.5
+    }
+  },
+  "variants": [
+    {
+      "id": "S4-a",
+      "title": "Drift right 0.25 m/s",
+      "overrides": {}
+    },
+    {
+      "id": "S4-b",
+      "title": "Drift left 0.25 m/s",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": -0.72,
+            "yaw_rad": 0.0,
+            "v_lat_mps": -0.25
+          }
+        }
+      }
+    },
+    {
+      "id": "S4-c",
+      "title": "Slow drift right 0.12 m/s",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": 0.72,
+            "yaw_rad": 0.006981,
+            "v_lat_mps": 0.0
+          }
+        }
+      }
+    },
+    {
+      "id": "S4-d",
+      "title": "Crosswind push to the right",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": 0.35,
+            "yaw_rad": 0.0,
+            "v_lat_mps": 0.0
+          }
+        },
+        "environment": [
+          {
+            "type": "crosswind",
+            "start_s": 1.0,
+            "duration_s": 2.5,
+            "peak_mps": 28.0,
+            "direction": 1.0,
+            "turbulence_intensity": 0.1
+          }
+        ]
+      }
+    }
+  ]
+}

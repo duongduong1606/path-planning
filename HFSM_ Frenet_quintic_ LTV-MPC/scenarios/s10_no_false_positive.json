@@ -1,0 +1,147 @@
+{
+  "schema_version": 2,
+  "extends": "_base/scenario.json",
+  "family": "S10",
+  "title": "No false positive near the line",
+  "category": "LKA",
+  "requirements": [
+    "PP-SWR-061"
+  ],
+  "base": {
+    "duration_s": 8.0,
+    "ego": {
+      "speed_mps": 20.0,
+      "desired_speed_mps": 20.0,
+      "initial": {
+        "x_m": 0.0,
+        "y_m": 0.45,
+        "yaw_rad": 0.0,
+        "v_lat_mps": 0.0
+      }
+    },
+    "adas": [
+      {
+        "t": 0.0,
+        "hwa": true,
+        "lka": true,
+        "elk": true
+      }
+    ],
+    "expectations": {
+      "must_not_activate": [
+        "LKA",
+        "ELK"
+      ],
+      "max_abs_lateral_error_m": 0.5
+    }
+  },
+  "variants": [
+    {
+      "id": "S10-a",
+      "title": "0.45 m from centre, zero drift",
+      "overrides": {}
+    },
+    {
+      "id": "S10-b",
+      "title": "0.60 m from centre, zero drift",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": 0.6,
+            "yaw_rad": 0.0,
+            "v_lat_mps": 0.0
+          }
+        },
+        "expectations": {
+          "must_not_activate": [
+            "LKA",
+            "ELK"
+          ],
+          "max_abs_lateral_error_m": 0.65
+        }
+      }
+    },
+    {
+      "id": "S10-c",
+      "title": "Near the line in a curve",
+      "overrides": {
+        "ego": {
+          "speed_mps": 20.0,
+          "desired_speed_mps": 20.0,
+          "initial": {
+            "x_m": 0.0,
+            "y_m": 0.45,
+            "yaw_rad": 0.0,
+            "v_lat_mps": 0.0
+          }
+        },
+        "road": {
+          "lane_width_m": 3.5,
+          "centerline": [
+            {
+              "s_m": 0.0,
+              "type": "straight",
+              "length_m": 40.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.0,
+              "end_curvature_inv_m": 0.00125
+            },
+            {
+              "type": "arc",
+              "length_m": 160.0,
+              "radius_m": 800.0
+            },
+            {
+              "type": "clothoid",
+              "length_m": 40.0,
+              "start_curvature_inv_m": 0.00125,
+              "end_curvature_inv_m": 0.0
+            },
+            {
+              "type": "straight",
+              "length_m": 1200.0
+            }
+          ],
+          "markings": [
+            {
+              "s_start_m": 0.0,
+              "s_end_m": 100000.0,
+              "left": "DASHED",
+              "right": "DASHED",
+              "left_confidence": 1.0,
+              "right_confidence": 1.0,
+              "left_view_range_m": 100.0,
+              "right_view_range_m": 100.0
+            }
+          ],
+          "edges": [],
+          "width_profile": [
+            {
+              "s_m": 0.0,
+              "width_m": 3.5
+            }
+          ],
+          "lanes": {
+            "ego_index": 1,
+            "widths_m": [
+              3.5,
+              3.5,
+              3.5
+            ],
+            "roles": [
+              "CAR",
+              "CAR",
+              "CAR"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
