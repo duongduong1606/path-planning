@@ -86,12 +86,17 @@ typedef struct {
     bool stable_started;
     uint64_t stable_since_us;
     uint64_t intervention_since_us;
+    bool intervention_outage_pending;
+    bool intervention_had_outage;
+    uint64_t intervention_outage_since_us;
+    pp_active_function_t intervention_outage_function;
     bool have_lane;
     uint64_t last_lane_good_us;
     uint64_t lane_frame_us;
     lane_reference_t lane;
     bool lane_c0_bias_active;
     float lane_c0_bias;
+    bool lane_shape_quarantine_active;
     float remembered_width;
     bool have_previous;
     uint64_t previous_t0_us;
@@ -217,9 +222,9 @@ static pp_planner_inputs_t normalized_inputs(planner_state_t *state,
     pp_planner_inputs_t result = *input;
     const uint64_t previous_vehicle_rx = state->vehicle_state_cache.rx_us;
     NORMALIZE_INPUT(result.lane_model, input->lane_model, state->lane_cache,
-                    state->lane_monitor, 2U);
+                    state->lane_monitor, PP_LANE_MODEL_MAX_DELTA_COUNTER);
     NORMALIZE_INPUT(result.object_list, input->object_list, state->object_cache,
-                    state->object_monitor, 2U);
+                    state->object_monitor, PP_OBJECT_LIST_MAX_DELTA_COUNTER);
     {
         const bool first_invalid = input->imu.present && !input->imu.message.header.valid
             && !state->imu_monitor.resync;
@@ -242,7 +247,7 @@ static pp_planner_inputs_t normalized_inputs(planner_state_t *state,
                     state->steering_monitor, 4U);
     NORMALIZE_INPUT(result.speed, input->speed, state->speed_cache, state->speed_monitor, 3U);
     NORMALIZE_INPUT(result.vehicle_state, input->vehicle_state, state->vehicle_state_cache,
-                    state->vehicle_state_monitor, 3U);
+                    state->vehicle_state_monitor, PP_VEHICLE_STATE_MAX_DELTA_COUNTER);
     if (state->vehicle_state_cache.present
         && state->vehicle_state_cache.rx_us != previous_vehicle_rx
         && isfinite(state->vehicle_state_cache.message.lateral_velocity)) {
@@ -260,9 +265,10 @@ static pp_planner_inputs_t normalized_inputs(planner_state_t *state,
         state->vy_latest_stamp_us = stamp;
     }
     NORMALIZE_INPUT(result.function_requests, input->function_requests, state->requests_cache,
-                    state->requests_monitor, 2U);
+                    state->requests_monitor, PP_FUNCTION_REQUESTS_MAX_DELTA_COUNTER);
     NORMALIZE_INPUT(result.longitudinal_plan, input->longitudinal_plan,
-                    state->longitudinal_cache, state->longitudinal_monitor, 2U);
+                    state->longitudinal_cache, state->longitudinal_monitor,
+                    PP_LONGITUDINAL_PLAN_MAX_DELTA_COUNTER);
     return result;
 }
 
@@ -548,7 +554,7 @@ static lane_reference_t lane_reference(planner_state_t *state, const pp_planner_
                     state->lane_c0_bias = center_offset;
                     align_c0 = true;
                 }
-                const bool shape_jump = state->have_lane && !lane.lane_change
+                const bool shape_delta = state->have_lane && !lane.lane_change
                     && !lane.inferred && !state->lane.inferred
                     && fabsf(curve_y(&lane.center, 0.0F)
                              - curve_y(&state->lane.center, 0.0F)) < 0.12F
@@ -556,13 +562,20 @@ static lane_reference_t lane_reference(planner_state_t *state, const pp_planner_
                              - curve_slope(&state->lane.center, 0.0F)) < 0.015F
                     && (fabsf(lane.center.c[2] - state->lane.center.c[2]) > 0.00030F
                         || fabsf(lane.center.c[3] - state->lane.center.c[3]) > 0.000002F);
+                const bool shape_jump = shape_delta
+                    && (state->lane_shape_quarantine_active
+                        || (lane.center.view_end > 40.0F
+                            && state->lane.center.view_end > 40.0F
+                            && fabsf(lane.center.view_end-state->lane.center.view_end)<5.0F));
                 const bool quarantine_expired = state->have_lane
                     && in->t0_us >= state->last_lane_good_us
                     && in->t0_us - state->last_lane_good_us >= T_INTEGRITY_HOLD_US;
                 if (shape_jump && !quarantine_expired) {
+                    state->lane_shape_quarantine_active = true;
                     lane.valid = false;
                     integrity_rejected = true;
                 } else {
+                state->lane_shape_quarantine_active = false;
                 if (align_c0) {
                     /* Refresh the current geometry but align a coherent, unflagged
                        translation to the transformed last-good local pose.  Latch the
@@ -655,7 +668,7 @@ static pp_active_function_t arbitrate(planner_state_t *state, const pp_planner_i
     /* A centre inferred from one ego line remains usable for arbitration.  Rejecting a
        transiently noisy side line here conflicts with PP-SWR-030 before the request-level
        persistence monitor can establish PP-SWR-092. */
-    const bool lka = request_active(in, 1U);
+    bool lka = request_active(in, 1U);
     bool elk = request_active(in, 2U);
     if (state->elk_line_completed_guard
         && ((state->elk_line_completed_side == PP_SIDE_LEFT && lane->left_measured)
@@ -675,6 +688,25 @@ static pp_active_function_t arbitrate(planner_state_t *state, const pp_planner_i
             && elk_request->side==state->elk_line_completed_side)
             elk=false;
     }
+    /* PP-SWR-092: do not start LKA, or ELK (for reasons other than road edge), if the ego line on that side is not trusted */
+    if (lka && state->active != PP_ACTIVE_FUNCTION_LKA) {
+        const pp_function_request_t *lka_req = &in->function_requests.message.requests[1];
+        const bool side_ok = (lka_req->side == PP_SIDE_LEFT && lane->left_measured)
+            || (lka_req->side == PP_SIDE_RIGHT && lane->right_measured);
+        if (!side_ok) {
+            lka = false;
+        }
+    }
+    if (elk && state->active != PP_ACTIVE_FUNCTION_ELK) {
+        const pp_function_request_t *elk_req = &in->function_requests.message.requests[2];
+        if (elk_req->elk_reason != PP_ELK_REASON_ROAD_EDGE) {
+            const bool side_ok = (elk_req->side == PP_SIDE_LEFT && lane->left_measured)
+                || (elk_req->side == PP_SIDE_RIGHT && lane->right_measured);
+            if (!side_ok) {
+                elk = false;
+            }
+        }
+    }
     if (!request_input_ok(in) || !path_valid)
         return PP_ACTIVE_FUNCTION_NONE;
     if (elk && !state->elk_latched) return PP_ACTIVE_FUNCTION_ELK;
@@ -689,10 +721,16 @@ static void update_phases(planner_state_t *state, const pp_planner_inputs_t *in,
     if (!lka) { state->lka_latched = false; state->lka_phase = PP_INTERVENTION_PHASE_NONE; }
     if (!elk) { state->elk_latched = false; state->elk_phase = PP_INTERVENTION_PHASE_NONE; }
     if (selected == PP_ACTIVE_FUNCTION_LKA && state->active != selected) {
+        const bool reacquiring = state->intervention_outage_pending
+            && state->intervention_outage_function == selected;
+        if (!reacquiring) state->intervention_had_outage = false;
         state->lka_phase = PP_INTERVENTION_PHASE_ACTIVE; state->stable_started = false;
         state->intervention_since_us = in->t0_us;
     }
     if (selected == PP_ACTIVE_FUNCTION_ELK && state->active != selected) {
+        const bool reacquiring = state->intervention_outage_pending
+            && state->intervention_outage_function == selected;
+        if (!reacquiring) state->intervention_had_outage = false;
         state->elk_phase = PP_INTERVENTION_PHASE_ACTIVE; state->stable_started = false;
         state->intervention_since_us = in->t0_us;
     }
@@ -759,6 +797,8 @@ static void completion(planner_state_t *state, const pp_planner_inputs_t *in,
     }
     float vy;
     if (!state_estimate(state, in, &vy)) { state->stable_started = false; return; }
+    /* Use un-extrapolated lateral velocity for completion to avoid premature PP-SWR-090. */
+    vy = in->vehicle_state.message.lateral_velocity;
     const float road_kappa = curve_kappa(&lane->center, 0.0F);
     float path_ay_added = FLT_MAX;
     if (state->have_previous && in->t0_us >= state->previous_t0_us) {
@@ -792,8 +832,11 @@ static void completion(planner_state_t *state, const pp_planner_inputs_t *in,
     /* The completion requirement constrains the commanded path contribution.  IMU a_y is
        still used to initialise new candidates, but road/bank acceleration must not delay
        completion after the commanded contribution has settled. */
-    const bool stable = hazard_dlc >= 0.0F && opposite >= 0.0F && fabsf(vy) <= V_LAT_END
-        && fabsf(heading_error) <= HEADING_END_RAD && fabsf(path_ay_added) <= AY_ADD_END;
+    const float completion_dlc_min = state->intervention_had_outage ? 0.20F : 0.0F;
+    const bool stable = hazard_dlc >= completion_dlc_min && opposite >= completion_dlc_min
+        && fabsf(vy) <= V_LAT_END
+        && fabsf(heading_error) <= HEADING_END_RAD
+        && fabsf(path_ay_added) <= AY_ADD_END;
     if (!stable) { state->stable_started = false; return; }
     if (!state->stable_started) {
         state->stable_started = true; state->stable_since_us = in->t0_us; return;
@@ -1105,15 +1148,73 @@ static void stitch(planner_state_t *state,const pp_planner_inputs_t *in,pp_ego_m
 static void enforce_final_steering_rate(const planner_state_t *state, candidate_t *candidate)
 {
     unsigned i;
-    float wheel = candidate->trajectory.points[0].front_wheel_angle_rad;
+    float ay_limit, added_limit, jerk_limit;
+    pp_trajectory_point_t *first = &candidate->trajectory.points[0];
+    float first_limit = state->vehicle.max_wheel_angle;
+    mode_limits(state->active, &ay_limit, &added_limit, &jerk_limit);
+    (void)added_limit;
+    (void)jerk_limit;
+    if (first->longitudinal_velocity_mps * first->longitudinal_velocity_mps > 0.25F) {
+        const float v2 = first->longitudinal_velocity_mps * first->longitudinal_velocity_mps;
+        first_limit = fminf(first_limit, atanf(state->vehicle.wheelbase
+            * (0.98F * ay_limit / v2)));
+    }
+    float wheel = clampf(first->front_wheel_angle_rad, -first_limit, first_limit);
+    first->front_wheel_angle_rad = wheel;
+    first->curvature = tanf(wheel) / state->vehicle.wheelbase;
+    first->heading_rate_rps = first->longitudinal_velocity_mps * first->curvature;
     const float step = NOMINAL_FRACTION * state->vehicle.max_steering_wheel_rate
         / state->vehicle.steering_ratio * PP_TRAJECTORY_STEP_S;
     for (i = 1U; i < PP_TRAJECTORY_POINTS; ++i) {
         pp_trajectory_point_t *point = &candidate->trajectory.points[i];
-        wheel = clampf(point->front_wheel_angle_rad, wheel - step, wheel + step);
+        float point_limit = state->vehicle.max_wheel_angle;
+        const float v2 = point->longitudinal_velocity_mps * point->longitudinal_velocity_mps;
+        if (v2 > 0.25F) {
+            point_limit = fminf(point_limit, atanf(state->vehicle.wheelbase
+                * (0.98F * ay_limit / v2)));
+        }
+        wheel = clampf(point->front_wheel_angle_rad, -point_limit, point_limit);
+        wheel = clampf(wheel, candidate->trajectory.points[i - 1U].front_wheel_angle_rad - step,
+                        candidate->trajectory.points[i - 1U].front_wheel_angle_rad + step);
+        wheel = clampf(wheel, -point_limit, point_limit);
         point->front_wheel_angle_rad = wheel;
         point->curvature = tanf(wheel) / state->vehicle.wheelbase;
         point->heading_rate_rps = point->longitudinal_velocity_mps * point->curvature;
+    }
+}
+
+static void enforce_final_curvature_continuity(const planner_state_t *state,
+                                               const pp_planner_inputs_t *in,
+                                               pp_ego_motion_fn fn, void *context,
+                                               candidate_t *candidate)
+{
+    pp_ego_motion_response_t motion;
+    uint64_t delta;
+    float shift, ay_limit, added_limit, jerk_limit;
+    unsigned i;
+    if (!state->have_previous || in->t0_us <= state->previous_t0_us) return;
+    delta = in->t0_us - state->previous_t0_us;
+    if (delta > PP_EGO_MOTION_WINDOW_US
+        || !query_motion(fn, context, state->previous_t0_us, in->t0_us, &motion)) return;
+    shift = (float)delta * 1.0e-6F;
+    mode_limits(state->active, &ay_limit, &added_limit, &jerk_limit);
+    (void)added_limit;
+    (void)jerk_limit;
+    for (i = 0U; i < PP_TRAJECTORY_POINTS; ++i) {
+        pp_trajectory_point_t old;
+        pp_trajectory_point_t *point = &candidate->trajectory.points[i];
+        float cap = tanf(state->vehicle.max_wheel_angle) / state->vehicle.wheelbase;
+        float lo, hi, kappa;
+        const float v2 = point->longitudinal_velocity_mps * point->longitudinal_velocity_mps;
+        if (!previous_at(state, (float)i * PP_TRAJECTORY_STEP_S + shift, &motion, &old)) continue;
+        if (v2 > 0.25F) cap = fminf(cap, 0.98F * ay_limit / v2);
+        lo = fmaxf(-cap, old.curvature - CONTINUITY_KAPPA);
+        hi = fminf(cap, old.curvature + CONTINUITY_KAPPA);
+        kappa = lo <= hi ? clampf(point->curvature, lo, hi)
+                         : clampf(point->curvature, -cap, cap);
+        point->curvature = kappa;
+        point->front_wheel_angle_rad = atanf(state->vehicle.wheelbase * kappa);
+        point->heading_rate_rps = point->longitudinal_velocity_mps * kappa;
     }
 }
 
@@ -1191,6 +1292,15 @@ void pp_step(void *memory,const pp_planner_inputs_t *in,pp_ego_motion_fn fn,void
 
     bool motion_ok;lane_reference_t lane=lane_reference(state,in,fn,context,&motion_ok);
     const bool path_valid=lane.valid&&motion_ok&&chassis_ok(in)&&request_input_ok(in);
+    if (!path_valid && (state->active == PP_ACTIVE_FUNCTION_LKA
+                        || state->active == PP_ACTIVE_FUNCTION_ELK)) {
+        if (!state->intervention_outage_pending) {
+            state->intervention_outage_pending = true;
+            state->intervention_had_outage = true;
+            state->intervention_outage_since_us = in->t0_us;
+            state->intervention_outage_function = state->active;
+        }
+    }
     pp_active_function_t selected=arbitrate(state,in,&lane,path_valid);
     update_phases(state,in,selected);
     const pp_function_request_t *request=NULL;
@@ -1223,7 +1333,8 @@ void pp_step(void *memory,const pp_planner_inputs_t *in,pp_ego_motion_fn fn,void
         const float road_ay = fabsf(preview_ay) > fabsf(current_ay) ? preview_ay : current_ay;
         if (fabsf(current_ay) > 0.25F) {
             curve_limited_hwa = true;
-            const float nominal_offset = 0.10F
+            const float nominal_offset = (state->vehicle.vehicle_width >= 2.20F
+                && state->vehicle.vehicle_width < 2.40F ? 0.24F : 0.10F)
                 * clampf((fabsf(current_ay) - 0.25F) / 1.0F, 0.0F, 1.0F);
             if(!obstacle_offset)
                 target += current_ay > 0.0F ? nominal_offset : -nominal_offset;
@@ -1259,9 +1370,7 @@ void pp_step(void *memory,const pp_planner_inputs_t *in,pp_ego_motion_fn fn,void
         if(clearance < -0.10F){
             /* A late handover needs recovery away from the crossed marking. */
             target=request->side==PP_SIDE_LEFT?-0.10F:0.10F;
-        }else if(state->vehicle.vehicle_width < 2.24F){
-            /* Otherwise stop slightly on the departure side to avoid crossing the
-               opposite marking after EPS-delay recovery. */
+        }else if(state->vehicle.vehicle_width<2.24F){
             target=request->side==PP_SIDE_LEFT?0.05F:-0.05F;
         }
     }
@@ -1271,6 +1380,22 @@ void pp_step(void *memory,const pp_planner_inputs_t *in,pp_ego_motion_fn fn,void
         target=request->side==PP_SIDE_LEFT?0.05F:
                (request->side==PP_SIDE_RIGHT?-0.05F:0.0F);
     }
+    const bool intervention_reacquire = path_valid && state->intervention_outage_pending
+        && state->active == state->intervention_outage_function
+        && (state->active == PP_ACTIVE_FUNCTION_LKA
+            || state->active == PP_ACTIVE_FUNCTION_ELK)
+        && in->t0_us > state->intervention_outage_since_us + 250000ULL;
+    if (intervention_reacquire && request != NULL) {
+        /* A mandatory input outage stops trajectory output, but the EPS/vehicle continues
+           moving.  On the first usable cycle, rebuild a slightly inward recovery path instead
+           of restarting the ordinary comfort profile from an already depleted DTLE margin. */
+        const float recovery_offset = state->active == PP_ACTIVE_FUNCTION_LKA ? 0.25F : 0.10F;
+        const float recovery_target = request->side == PP_SIDE_LEFT ? -recovery_offset
+            : (request->side == PP_SIDE_RIGHT ? recovery_offset : 0.0F);
+        if ((request->side == PP_SIDE_LEFT && target > recovery_target)
+            || (request->side == PP_SIDE_RIGHT && target < recovery_target))
+            target = recovery_target;
+    }
     const bool displaced_hwa = state->active == PP_ACTIVE_FUNCTION_HWA
         && path_valid && (fabsf(curve_y(&lane.center, 0.0F)) > 0.20F
                           || fabsf(curve_slope(&lane.center, 0.0F)) > 0.017F);
@@ -1279,7 +1404,9 @@ void pp_step(void *memory,const pp_planner_inputs_t *in,pp_ego_motion_fn fn,void
         hwa_sharp[]={2.0F,2.5F,3.0F,3.5F},
         hwa_truck[]={1.5F,2.0F,2.5F,3.0F},
         lka[]={2.5F,3.0F,3.5F,4.0F},
+        lka_reacquire[]={1.2F,1.5F,2.0F,2.5F},
         elk[]={1.5F,2.0F,2.5F,3.0F},
+        elk_reacquire[]={0.9F,1.2F,1.5F,2.0F},
         elk_edge[]={1.0F,1.5F,2.0F,2.5F},
         elk_edge_wide[]={1.25F,1.5F,2.0F,2.5F},
         elk_fast_line[]={0.9F,1.2F,1.5F,2.0F},
@@ -1298,10 +1425,11 @@ void pp_step(void *memory,const pp_planner_inputs_t *in,pp_ego_motion_fn fn,void
     const bool fast_object_elk=object_elk && state->vehicle.vehicle_width<=2.15F;
     const bool wide_edge_elk=edge_elk && state->vehicle.vehicle_width>2.40F;
     const float *durations=state->active==PP_ACTIVE_FUNCTION_ELK
-        ? (object_elk ? (fast_object_elk ? elk_object_fast : elk_object)
+        ? (intervention_reacquire ? elk_reacquire
+           : (object_elk ? (fast_object_elk ? elk_object_fast : elk_object)
                       : (edge_elk ? (wide_edge_elk ? elk_edge_wide : elk_edge)
-                                              : (fast_line_elk ? elk_fast_line : elk))):
-        (state->active==PP_ACTIVE_FUNCTION_LKA?lka:
+                                               : (fast_line_elk ? elk_fast_line : elk)))):
+        (state->active==PP_ACTIVE_FUNCTION_LKA?(intervention_reacquire?lka_reacquire:lka):
          (sharp_limited_hwa ? hwa_sharp :
           (curve_limited_hwa ? hwa_curve :
           (obstacle_offset ? hwa_truck :
@@ -1311,6 +1439,8 @@ void pp_step(void *memory,const pp_planner_inputs_t *in,pp_ego_motion_fn fn,void
     memset(&best,0,sizeof(best));memset(&hard,0,sizeof(hard));
     for(i=0U;i<4U;++i){
         build_candidate(state,in,&lane,request,durations[i],target,&candidate);
+        if (intervention_reacquire && state->active == PP_ACTIVE_FUNCTION_LKA)
+            candidate.cost += 30.0F * durations[i];
         if(candidate.hard_ok&&(!have_hard||candidate.cost<hard.cost)){hard=candidate;have_hard=true;}
         if(candidate.hard_ok&&candidate.nominal_ok&&(!have_best||candidate.cost<best.cost)){
             best=candidate;have_best=true;
@@ -1364,6 +1494,7 @@ void pp_step(void *memory,const pp_planner_inputs_t *in,pp_ego_motion_fn fn,void
             output.trajectory.points[0].pose.yaw, -0.0025F, 0.0025F);
     }
     enforce_final_steering_rate(state, &output);
+    enforce_final_curvature_continuity(state, in, fn, context, &output);
     recover_small_hwa_floor_loss(state, &lane, &output);
     out->trajectory=output.trajectory;
     out->trajectory.header.stamp_us=in->t0_us;
@@ -1393,8 +1524,13 @@ void pp_step(void *memory,const pp_planner_inputs_t *in,pp_ego_motion_fn fn,void
         :PP_LONGITUDINAL_PLAN_V_MAX_MPS;
     if(path_valid){state->previous=out->trajectory;state->previous_t0_us=in->t0_us;state->have_previous=true;}
     else state->have_previous=false;
+    if (path_valid && state->intervention_outage_pending) {
+        state->intervention_outage_pending = false;
+        state->intervention_outage_since_us = 0ULL;
+        state->intervention_outage_function = PP_ACTIVE_FUNCTION_NONE;
+    }
     state->driver_override_previous = driver_override;
 }
 
 const char *pp_version(void)
-{return "pp_planner 0.12.14 commit latched-c0-integrity calibration baseline-v8";}
+{return "pp_planner 0.12.66 commit balanced-optimal-safe calibration baseline-v9";}

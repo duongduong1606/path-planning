@@ -1,0 +1,111 @@
+{
+  "baseline": {
+    "y_T_mae": 0.27701714634895325,
+    "y_T_rmse": 0.4429001212120056,
+    "y_T_p95_abs": 0.9296717047691345,
+    "y_dot_T_mae": 0.27447834610939026,
+    "y_dot_T_rmse": 0.4497821629047394,
+    "y_dot_T_p95_abs": 0.9826416969299316,
+    "y_ddot_T_mae": 0.2271367758512497,
+    "y_ddot_T_rmse": 0.3556908369064331,
+    "y_ddot_T_p95_abs": 0.775880753993988,
+    "lateral_ADE": 0.12604541567059094,
+    "lateral_FDE": 0.2770171360890563,
+    "max_lateral_error_p95": 0.9296717122197149,
+    "heading_error_mae_rad": 0.011768277527534069,
+    "max_lateral_accel_p95": 1.949958819531059,
+    "max_lateral_jerk_p95": 5.698931465148924,
+    "gaussian_nll": 0.24470904240217145,
+    "coverage_68": 0.7905728619764322,
+    "coverage_90": 0.9287131023217827,
+    "coverage_95": 0.9542643798856609,
+    "sharpness_mean_sigma": 0.40566572546958923,
+    "lane_boundary_violation": 0.09858826274647066,
+    "truth_current_lane_crossing_fraction": 0.11095554777738886,
+    "stay_lane_boundary_violation": 0.025459317585301837,
+    "truth_crossing_recall": 0.6845425867507886,
+    "lateral_FDE_stay_lane": 0.2391989529132843,
+    "lateral_FDE_truth_crossing": 0.5800397396087646,
+    "lateral_FDE_ci95_route_bootstrap": [
+      0.23204165697097778,
+      0.375584189593792
+    ]
+  },
+  "candidate": {
+    "y_T_mae": 0.27970990538597107,
+    "y_T_rmse": 0.45015934109687805,
+    "y_T_p95_abs": 0.9318535327911377,
+    "y_dot_T_mae": 0.2767890393733978,
+    "y_dot_T_rmse": 0.45426294207572937,
+    "y_dot_T_p95_abs": 0.9823987483978271,
+    "y_ddot_T_mae": 0.22609542310237885,
+    "y_ddot_T_rmse": 0.35523688793182373,
+    "y_ddot_T_p95_abs": 0.7730778455734253,
+    "lateral_ADE": 0.12791977421575426,
+    "lateral_FDE": 0.2797098773775933,
+    "max_lateral_error_p95": 0.9318535253405569,
+    "heading_error_mae_rad": 0.011443059290399455,
+    "max_lateral_accel_p95": 1.9366040712646477,
+    "max_lateral_jerk_p95": 5.598557288646696,
+    "gaussian_nll": 0.24484709158473167,
+    "coverage_68": 0.7839225294598063,
+    "coverage_90": 0.9255629448139073,
+    "coverage_95": 0.9519309298798273,
+    "sharpness_mean_sigma": 0.4047379791736603,
+    "lane_boundary_violation": 0.09555477773888695,
+    "truth_current_lane_crossing_fraction": 0.11095554777738886,
+    "stay_lane_boundary_violation": 0.024409448818897637,
+    "truth_crossing_recall": 0.6656151419558359,
+    "lateral_FDE_stay_lane": 0.2391313761472702,
+    "lateral_FDE_truth_crossing": 0.6048499941825867,
+    "lateral_FDE_ci95_route_bootstrap": [
+      0.2323095202445984,
+      0.38620645701885226
+    ]
+  },
+  "delta_candidate_minus_baseline": {
+    "lateral_ADE": 0.0018743585451633238,
+    "lateral_FDE": 0.0026927412885369706,
+    "lane_boundary_violation": -0.003033485007583714,
+    "stay_lane_boundary_violation": -0.0010498687664041995,
+    "truth_crossing_recall": -0.018927444794952675,
+    "max_lateral_accel_p95": -0.013354748266411365,
+    "max_lateral_jerk_p95": -0.10037417650222746,
+    "coverage_90": -0.003150157507875395
+  },
+  "paired_route_bootstrap_ci95": {
+    "lateral_FDE_delta": [
+      -0.0016807322390377522,
+      0.012411361560225487
+    ],
+    "boundary_violation_delta": [
+      -0.006520325167642666,
+      -0.001455604075691412
+    ],
+    "stay_lane_boundary_violation_delta": [
+      -0.0026346604215456673,
+      -0.000354546722924825
+    ]
+  },
+  "ab_promotion": {
+    "pass": false,
+    "checks": {
+      "fde_not_worse": false,
+      "ade_not_worse": false,
+      "stay_lane_boundary_violation_not_worse": true,
+      "coverage_90_in_85_to_95_percent": true,
+      "lateral_acceleration_p95_at_most_2_5": true,
+      "lateral_jerk_p95_at_most_5": false
+    }
+  },
+  "project_acceptance": {
+    "pass": false,
+    "checks": {
+      "fde_15_percent_better_than_best_geometric": true,
+      "stay_lane_boundary_no_worse_than_best_geometric": false
+    },
+    "best_geometric_FDE": 0.8595697202942715,
+    "best_geometric_boundary_violation": 0.0018667600046669,
+    "best_geometric_stay_lane_boundary_violation": 0.0
+  }
+}

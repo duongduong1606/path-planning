@@ -11,7 +11,7 @@ PORT = int(os.environ.get('PORT', 8765))
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(SCRIPT_DIR)
 
-NO_CACHE_FILES = frozenset(['app.js'])
+NO_CACHE_FILES = frozenset(['app.js', 'data.js'])
 
 class CacheBustingHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):

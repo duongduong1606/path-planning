@@ -20,27 +20,29 @@ from preprocessing import (
 
 
 def route_split(all_segments: list[Path], config: PipelineConfig) -> dict[Path, str]:
-    """Deterministic chunk-stratified split with exact 26/5/6 counts."""
+    """Deterministic chunk-stratified ~70/14/16 split with zero route leakage."""
     routes_by_chunk: dict[str, list[Path]] = {}
     for segment in all_segments:
         routes_by_chunk.setdefault(segment.parents[1].name, []).append(segment.parent)
     routes_by_chunk = {key: sorted(set(value)) for key, value in routes_by_chunk.items()}
-    if sum(map(len, routes_by_chunk.values())) != 37:
-        raise ValueError("expected exactly 37 comma2k19 routes")
+    if not routes_by_chunk:
+        raise ValueError("no comma2k19 routes found")
     rng = np.random.default_rng(config.seed)
     shuffled = {}
     for chunk, routes in sorted(routes_by_chunk.items()):
         order = rng.permutation(len(routes))
         shuffled[chunk] = [routes[i] for i in order]
-    # Known 21/16 route chunks: proportional allocation with exact totals.
     allocations = {}
     for chunk, routes in shuffled.items():
-        if len(routes) == 21:
-            allocations[chunk] = (15, 3, 3)
-        elif len(routes) == 16:
-            allocations[chunk] = (11, 2, 3)
-        else:
-            raise ValueError(f"unexpected route count in {chunk}: {len(routes)}")
+        n = len(routes)
+        if n < 3:
+            raise ValueError(f"need at least 3 routes in {chunk} for split, got {n}")
+        val_n = max(1, round(n * 5 / 37))
+        test_n = max(1, round(n * 6 / 37))
+        train_n = n - val_n - test_n
+        if train_n < 1:
+            raise ValueError(f"insufficient routes in {chunk} for split: {n}")
+        allocations[chunk] = (train_n, val_n, test_n)
     result: dict[Path, str] = {}
     for chunk, routes in shuffled.items():
         train_n, val_n, _ = allocations[chunk]
